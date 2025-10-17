@@ -15,7 +15,7 @@ type CatFactResponse struct {
 func main() {
 	r := gin.Default()
 
-	r.GET("/catfact", func(c *gin.Context) {
+	r.GET("/me", func(c *gin.Context) {
 		client := resty.New()
 		client.SetTimeout(5 * time.Second)
 
