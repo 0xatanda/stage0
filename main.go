@@ -53,7 +53,6 @@ func main() {
 		c.JSON(http.StatusOK, response)
 	})
 
-	// Use Render's assigned PORT or default to 8080
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
