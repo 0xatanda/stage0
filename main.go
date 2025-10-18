@@ -2,12 +2,14 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 )
 
+// Struct for Cat Fact API response
 type CatFactResponse struct {
 	Fact string `json:"fact"`
 }
@@ -15,11 +17,18 @@ type CatFactResponse struct {
 func main() {
 	r := gin.Default()
 
+	// Optional: enable CORS for external access
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		c.Next()
+	})
+
 	r.GET("/me", func(c *gin.Context) {
 		client := resty.New()
 		client.SetTimeout(5 * time.Second)
 
-		// Fetch cat fact from external API
 		var catfact CatFactResponse
 		resp, err := client.R().SetResult(&catfact).Get("https://catfact.ninja/fact")
 
@@ -35,12 +44,20 @@ func main() {
 			"user": gin.H{
 				"email": "atanda0x@gmail.com",
 				"name":  "Atanda Nafiu",
-				"stack": "Go/Gin, Python/Django, JavaScript/Node.js, JAVA/Spring Boot, C#/.NET",
+				"stack": "Go/Gin, Python/Django, JavaScript/Node.js, Java/Spring Boot, C#/.NET",
 			},
-			"timestamp": time.Now().Format(time.RFC3339Nano),
+			"timestamp": time.Now().UTC().Format(time.RFC3339Nano),
 			"fact":      fact,
 		}
+
 		c.JSON(http.StatusOK, response)
 	})
-	r.Run(":8080")
+
+	// Use Render's assigned PORT or default to 8080
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	r.Run(":" + port)
 }
